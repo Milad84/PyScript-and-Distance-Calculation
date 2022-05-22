@@ -1,0 +1,36 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+    
+</head>
+<body>
+   <center> <h1>Simple usage of PyScript</h1> </center>
+    <center> 
+    <div id="convert" align="text-center"></div>
+    <py-script output="convert"> 
+
+lst = [65,78,89,73,67,90,96,67,87,78]
+
+for i in lst:
+    if i >=50 and i <= 60:
+        print ("F")
+    elif i >=61 and i <= 70:
+        print ("D")
+    elif i >=71 and i  <=80:
+        print ("C")
+    elif i >=81 and i <=90:
+        print("B")
+    else:
+        print ("A")
+
+    </py-script>
+    </center>
+</body>
+</html>
