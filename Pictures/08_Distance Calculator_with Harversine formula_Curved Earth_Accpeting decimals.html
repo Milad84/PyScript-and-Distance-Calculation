@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+  
+<head>
+  <title>Distance Calculator Using Haversine Formula </title>
+  <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+  <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+  <!-- bootstrap for styling , Pyscript can also be used for styling instead of bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <style>
+ <style>
+ body {
+        background-color: #fcfcfc;
+        padding-top: 55px;
+        min-height: 100vh;
+        margin:0;
+        display:flex;
+        flex-direction:column;
+      }
+</style>
+</head>
+  
+<body>
+  <div id="msg">Loading page, please wait ...</div>
+   
+  <br />
+  
+  <div class="container">
+       
+        <h1 class="text-center">
+            Calculated Distance Using Haversine Formula 
+        </h1>
+        <br />
+  
+  <p><h3>Enter the Latitude of the first point</h3>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the first point" /></p>
+
+        <p><h3>Enter the Longitude of the first point</h3>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the first point" /></p>
+
+        <p><h3>Enter the Latitude of the second point</h3>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the second point" /></p>
+
+        <p><h3>Enter the Longitude of the second point</h3>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the second point" /></p>
+		
+		
+	<br/>
+	
+	 <center>
+		<button  class="btn btn-info" type="button" id="button">Calculate the Distance Between Two Points</button>
+	</center>
+  
+  <p>
+        <h4>Result:</h4>
+        <textarea id="Distance" class="form-control" rows="2" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Result"></textarea></p>
+ 
+  <br />
+  <br />
+  </div>
+  <div id="msg">
+ 
+  <py-script>
+from js import document, alert
+#imported this to create a proxy function that will not execute when the page is loaded
+from pyodide import create_proxy
+#imported to do maths calculation for curvature
+from math import radians, cos, sin, asin, sqrt
+
+
+
+def button_click(event):
+
+    FirstLat = document.getElementById("FirstLat").value
+    FirstLong= document.getElementById('FirstLong').value
+    SecLat= document.getElementById('SecLat').value
+    SecLong= document.getElementById('SecLong').value
+
+
+# attempt conversion of input and alert if any of them
+# aren't valid conversions
+
+    try:
+        first_lat = float(FirstLat)
+        first_long = float(FirstLong)
+        sec_lat = float(SecLat)
+        sec_long = float(SecLong)
+    except ValueError:
+        alert("Invalid inputs, please make sure you have valid coordinates input.")
+        return False
+
+
+    dx = sec_lat - first_lat
+    dy = sec_long - first_long
+    dsquared = dx*dx + dy*dy
+    calculated_distance = dsquared**0.5
+
+# to calculate with curvature using Haversine Formula
+    first_lat_rad = radians(first_lat)
+    sec_lat_rad = radians(sec_lat)
+    first_long_rad = radians(first_long)
+    sec_long_rad = radians(sec_long)
+
+# Calculating using the Haversine formula
+    dlon = sec_long_rad - first_long_rad
+    dlat = sec_lat_rad - first_lat_rad
+    a = sin(dlat / 2)**2 + cos(first_lat_rad) * cos(sec_lat_rad) * sin(dlon / 2)**2
+
+    c = 2 * asin(sqrt(a))
+
+# We define the radius of the earth in miles
+    r = 6371
+
+# calculate the result
+    calculated_distance = c * r
+
+ #display the result
+    document.getElementById("Distance").innerHTML = 'Calculated Distance: ' + str(calculated_distance)   
+
+
+def setup():
+	# The page is ready, clear the "page loading"
+	document.getElementById("msg").innerHTML = ''
+
+	# Create a JsProxy for the callback function
+	click_proxy = create_proxy(button_click)
+
+	# Set the listener to the callback
+	e = document.getElementById("button")
+	e.addEventListener("click", click_proxy)
+
+setup()
+
+ 
+  </py-script>
+</body>
+</html>
