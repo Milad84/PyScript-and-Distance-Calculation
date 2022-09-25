@@ -56,7 +56,7 @@
 
 
   
-  <div class="container">
+  <div class="container"> 
        
         <h1 class="text-center">
             Calculated Distance
@@ -112,11 +112,11 @@
           }else{
             
             $('#status').text('Select Destination')
-            $('#SecLat').val = ev.latlng.lat
-            $('#SecLat').val = ev.latlng.lng  
+            $('#SecLat').val = parseFloat( ev.latlng.lat )
+            $('#SecLong').val = parseFloat( ev.latlng.lng )  
 
             //trigger #button click event so that PyScript event is triggered
-            $( "#foo" ).trigger( "click" );
+            $( "#button" ).trigger( "click" );
 
             origin = 0
           }
@@ -147,12 +147,12 @@ def button_click(event):
 	FirstLong= document.getElementById('FirstLong').value
 	SecLat= document.getElementById('SecLat').value
 	SecLong= document.getElementById('SecLong').value
-	
-	
+	print('hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : ',FirstLat )
+
 	<!-- #validate input
-	if(not(FirstLat.isnumeric()) and not(FirstLong.isnumeric()) and not(SecLat.isnumeric()) and not(SecLong.isnumeric())):
-		alert("Invalid Input(s), please make sure you have valid cordinates input")
-		return False -->
+	#if(not(FirstLat.isnumeric()) and not(FirstLong.isnumeric()) and not(SecLat.isnumeric()) and not(SecLong.isnumeric())):
+	#	alert("Invalid Input(s), please make sure you have valid cordinates input")
+	#	return False -->
 	
 			
 	#since the input values will be string, converting to float
