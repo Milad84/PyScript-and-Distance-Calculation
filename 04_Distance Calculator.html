@@ -22,8 +22,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-    <style>
- <style>
+
+<style>
  body {
         background-color: #fcfcfc;
         padding-top: 55px;
@@ -33,11 +33,10 @@
         flex-direction:column;
       }
 
-#map { height: 180px; }
+#map { height: 180px; margin: 10 0 0 0;}
 
-#status{
-  text-align: center;
-}
+#button {visibility: hidden;}
+
 
 
 </style>
@@ -51,29 +50,25 @@
   <!-- div for map-->
   <div id="map"></div>
 
-  <!--Status Viewer-->
-  <div id="status"><h4>Select Origin</h4></div>
-
-
   
   <div class="container"> 
        
-        <h1 class="text-center">
-            Calculated Distance
+        <h1 class="text-center" id="statusDiv" >
+            Select Origin
         </h1>
         <br />
   
-  <p><h3>Enter the Latitude of the first point</h3>
-        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the first point" /></p>
+  <p><!-- <h3>Enter the Latitude of the first point</h3>-->
+        <input id="FirstLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the first point" /></p>
 
-        <p><h3>Enter the Longitude of the first point</h3>
-        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the first point" /></p>
+        <p><!--<h3>Enter the Longitude of the first point</h3>-->
+        <input id="FirstLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the first point" /></p>
 
-        <p><h3>Enter the Latitude of the second point</h3>
-        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the second point" /></p>
+        <p><!--<h3>Enter the Latitude of the second point</h3>-->
+        <input id="SecLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the second point" /></p>
 
-        <p><h3>Enter the Longitude of the second point</h3>
-        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the second point" /></p>
+        <p><!--<h3>Enter the Longitude of the second point</h3>-->
+        <input id="SecLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Longitude of the second point" /></p>
 		
 		
 	<br/>
@@ -98,31 +93,75 @@
         var lat1, lng1, lat2, lng2;
         // Flag to check if orgin or destination
         var origin = 0;
+        //array for polyline marker
+        var latlngs = Array()
 
         var map = L.map('map').setView([51.505, -0.09], 13);
+
+        //Layer to add polyline
+        var active_polyline = L.featureGroup().addTo(map);
+
+        //Draw To Map
+        function drawToMap(ev, what){
+
+          //Add Start Marker
+          var marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(active_polyline);
+          marker.bindPopup("<b>"+what+"</b><br> <i>Latitude: </i>"+ev.latlng.lat+" <br/> <i>Longitude: </i>"+ev.latlng.lng).openPopup();
+        }
+
+        //rest map 
+        function clearMap() {
+          latlngs = Array()
+          active_polyline.clearLayers();
+        }
+
 
         map.addEventListener('click', function(ev){
           if (origin == 0){
            
+            //reset 
+            clearMap()
+
+
             $('#status').text('Select Destination')
-            $('#FirstLat').val = ev.latlng.lat
-            $('#FirstLong').val = ev.latlng.lng  
+            $('#FirstLat').val(ev.latlng.lat)
+            $('#FirstLong').val(ev.latlng.lng)  
+            
+            //push latlong value to array
+            latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+
+            //Add Start Marker
+            drawToMap(ev, "Origin Point")
 
             origin = 1
           }else{
             
-            $('#status').text('Select Destination')
-            $('#SecLat').val = parseFloat( ev.latlng.lat )
-            $('#SecLong').val = parseFloat( ev.latlng.lng )  
+            $('#status').text('Select Origin')
+            $('#SecLat').val(ev.latlng.lat)
+            $('#SecLong').val(ev.latlng.lng) 
+            
+            //push latlong value to array
+            latlngs.push([ev.latlng.lat,ev.latlng.lng]);            
+
 
             //trigger #button click event so that PyScript event is triggered
             $( "#button" ).trigger( "click" );
 
+            //Add Stop Marker
+            drawToMap(ev, "Destination Point")
+
+            latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+            var marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(active_polyline);
+
+            //Draw the polyline
+            var polyline = L.polyline(latlngs, {color: 'red'}).addTo(active_polyline);
+
+            // zoom the map to the polyline
+            map.fitBounds(polyline.getBounds());
+
             origin = 0
           }
           
-
-          alert('lat : ' + lat1 +  ' : lng : ' + lng1)
         });
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -147,7 +186,9 @@ def button_click(event):
 	FirstLong= document.getElementById('FirstLong').value
 	SecLat= document.getElementById('SecLat').value
 	SecLong= document.getElementById('SecLong').value
-	print('hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : ',FirstLat )
+	print('hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : ' )
+	print(FirstLat )
+	document.getElementById("Distance").innerHTML = 'First Lat: ' + FirstLat
 
 	<!-- #validate input
 	#if(not(FirstLat.isnumeric()) and not(FirstLong.isnumeric()) and not(SecLat.isnumeric()) and not(SecLong.isnumeric())):
