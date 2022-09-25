@@ -33,9 +33,9 @@
         flex-direction:column;
       }
 
-#map { height: 180px; margin: 10 0 0 0;}
+#map { height: 280px; margin: 0 0 0 0;}
 
-#button {visibility: hidden;}
+#button {display: none;}
 
 
 
@@ -79,7 +79,7 @@
   
   <p>
         <h4>Result:</h4>
-        <textarea id="Distance" class="form-control" rows="2" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Result"></textarea></p>
+        <textarea id="Distance" class="form-control" rows="2" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Distance Between Origin and Destination Will Be Displayed Here"></textarea></p>
  
   <br />
   <br />
@@ -186,9 +186,6 @@ def button_click(event):
 	FirstLong= document.getElementById('FirstLong').value
 	SecLat= document.getElementById('SecLat').value
 	SecLong= document.getElementById('SecLong').value
-	print('hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : ' )
-	print(FirstLat )
-	document.getElementById("Distance").innerHTML = 'First Lat: ' + FirstLat
 
 	<!-- #validate input
 	#if(not(FirstLat.isnumeric()) and not(FirstLong.isnumeric()) and not(SecLat.isnumeric()) and not(SecLong.isnumeric())):
@@ -208,7 +205,7 @@ def button_click(event):
  
 def setup():
 	# The page is ready, clear the "page loading"
-	document.getElementById("msg").innerHTML = ''
+	document.getElementById("msg").style.display = "none";
  
 	# Create a JsProxy for the callback function
 	click_proxy = create_proxy(button_click)
