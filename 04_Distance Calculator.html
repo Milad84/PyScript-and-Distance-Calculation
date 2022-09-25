@@ -2,6 +2,20 @@
   
 <head>
   <title>Distance Calculator</title>
+
+  <!-- Leaflet Libraries Import-->
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.1/dist/leaflet.css"
+  integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+  crossorigin=""/>
+
+   <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.1/dist/leaflet.js"
+ integrity="sha256-NDI0K41gVbWqfkkaHj15IzU7PtMoelkzyKp8TOaFQ3s="
+ crossorigin=""></script>
+
+
+
   <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
   <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
   <!-- bootstrap for styling , Pyscript can also be used for styling instead of bootstrap -->
@@ -18,6 +32,14 @@
         display:flex;
         flex-direction:column;
       }
+
+#map { height: 180px; }
+
+#status{
+  text-align: center;
+}
+
+
 </style>
 </head>
   
@@ -25,6 +47,14 @@
   <div id="msg">Loading page, please wait ...</div>
    
   <br />
+
+  <!-- div for map-->
+  <div id="map"></div>
+
+  <!--Status Viewer-->
+  <div id="status"><h4>Select Origin</h4></div>
+
+
   
   <div class="container">
        
@@ -60,6 +90,49 @@
   <br />
   </div>
   <div id="msg">
+
+
+  <script>
+
+        // variable to store clicked cordinated
+        var lat1, lng1, lat2, lng2;
+        // Flag to check if orgin or destination
+        var origin = 0;
+
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        map.addEventListener('click', function(ev){
+          if (origin == 0){
+           
+            $('#status').text('Select Destination')
+            $('#FirstLat').val = ev.latlng.lat
+            $('#FirstLong').val = ev.latlng.lng  
+
+            origin = 1
+          }else{
+            
+            $('#status').text('Select Destination')
+            $('#SecLat').val = ev.latlng.lat
+            $('#SecLat').val = ev.latlng.lng  
+
+            //trigger #button click event so that PyScript event is triggered
+            $( "#foo" ).trigger( "click" );
+
+            origin = 0
+          }
+          
+
+          alert('lat : ' + lat1 +  ' : lng : ' + lng1)
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+
+
+  </script>
  
   <py-script>
 from js import document, alert
