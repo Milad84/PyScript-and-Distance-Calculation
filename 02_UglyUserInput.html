@@ -1,0 +1,43 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+    <py-env>
+      
+    </py-env>
+</head>
+<body>
+    <h1>Distance Calculator</h1>
+
+    <div id="Distance"></div>
+
+<p></p>  
+
+    <py-script output="Distance"> 
+        
+x1= int(input("What is the longitude of the first point"))
+y1= int(input("What is the latitude of the first point"))
+x2= int(input("What is the longitude of the second point"))
+y2= int(input("What is the latitude of the first point"))
+
+def distance(x1, y1, x2, y2):
+    dx = x2 - x1
+    dy = y2 - y1
+    dsquared = dx*dx + dy*dy
+    result = dsquared**0.5
+    return result
+
+r = distance(x1,y1, x2, y2)
+
+print (r)
+ 
+
+    </py-script>
+</body>
+</html>

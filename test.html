@@ -1,0 +1,40 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API Fetch Test</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+    <py-env>
+    </py-env>
+
+</head>
+<body>
+    <h1>API Call Test</h1> <br />
+
+
+
+    <div id="status"></div>
+    <div id="Test"></div>
+
+<p></p>  
+
+    <py-script> 
+
+from pyodide.http import pyfetch
+import asyncio
+
+headers = {
+    'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+}
+
+response = await pyfetch(url="https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start=8.681495,49.41461&end=8.687872,49.420318", method="GET", headers=headers)
+
+pyscript.write('status', f"GET request=> status:{response.status}, json:{await response.json()}")
+
+    </py-script>
+</body>
+</html>

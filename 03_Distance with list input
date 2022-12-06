@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+      <title> Distance Calculator </title>
+    
+    <!-- Pyscript -->
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <!--<link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />-->
+    
+    <!-- bootstrap for styling , Pyscript can also be used for styling instead of bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <style>
+    
+    body {
+        background-color: #fcfcfc;
+        padding-top: 55px;
+        min-height: 100vh;
+        margin:0;
+        display:flex;
+        flex-direction:column;
+      }
+    </style> 
+
+</head>
+<body>
+
+
+ <div id="distance"></div>
+
+<p></p>  
+
+<py-script> 
+
+from js import document,alert
+
+x1,y1, x2,y2 = [float(x) for x in input("Enter 4 values with a space between them: ").split()]
+
+
+
+def distance(x1,y1,x2,y2):
+    dx = x2 - x1
+    dy = y2 - y1
+    dsquared = dx*dx + dy*dy
+    calculated_distance = dsquared**0.5
+    return calculated_distance
+
+result = distance(x1,y1,x2,y2)
+
+#print ("The distance between two points is", result)
+
+pyscript.write("The Distnce is",result)
+
+
+
+</py-script>
+
+
+    <div class="container">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h1 class="text-center">
+            Insert coordinates of your chosen two points with a space between every value to calculate the distance. </h1>
+            <br>
+           <p align="center"> Example: 23.52 45.2 24 67.08 </p>
+        
+        <br />
+
+       <!--  <p><h3>Enter the coordinates</h3>
+        <input id="x1,y1, x2,y2" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Enter the Latitude of the first point" /></p> -->
+
+
+
+       <!--  <center>
+            <button id="distance" type="submit"  class="btn btn-info" pys-onClick="distance">Calculate the Distance Between Two Points</button>
+
+        </center> -->
+        
+        <p>
+        <h4>Result:</h4>
+        <textarea id="The Distnce is" class="form-control" rows="2" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Result"></textarea></p>
+    
+        
+    </div>    
+
+</body>
+</html>

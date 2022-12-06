@@ -1,0 +1,101 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API Fetch Test</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+    <py-env>
+    </py-env>
+
+</head>
+<body>
+    <h1>API Call Test</h1> <br />
+
+    <div class="container">
+
+    <p><h3>Enter the Latitude of the first point</h3>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="First Lat" /></p>
+
+        <p><h3>Enter the Longitude of the first point</h3>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="First long" /></p>
+
+        <p><h3>Enter the Latitude of the second point</h3>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Second lat" /></p>
+
+        <p><h3>Enter the Longitude of the second point</h3>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Second long" /></p>
+		
+	<br/>
+
+    <center>
+		<button  class="btn btn-info" type="button" id="button">Route my points!</button>
+	</center>
+
+
+    </div>
+
+    <script>
+        function createObject(object, variableName){
+            //Bind a variable whose name is the string variableName
+            // to the object called 'object'
+            let execString = variableName + " = object"
+            console.log("Running '" + execString + "'");
+            eval(execString)
+        }
+    </script>
+
+    <div id="status"></div>
+
+
+<p></p>  
+
+    <py-script> 
+from pyodide.http import pyfetch
+from js import document, alert
+from pyodide import create_proxy
+import asyncio
+from js import createObject
+import json
+
+async def button_click(event):
+    FirstLat = document.getElementById("FirstLat").value
+    FirstLong = document.getElementById('FirstLong').value
+    SecLat = document.getElementById('SecLat').value
+    SecLong = document.getElementById('SecLong').value
+
+    ##test data: 8.681495,49.41461       8.687872,49.420318
+
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+    }
+
+    response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLat},{FirstLong}&end={SecLat},{SecLong}", method="GET", headers=headers)
+    response_dict = await response.json()
+
+    pyscript.write('status', f"GET request=> status:{response.status}, json:{response_dict['type']}")
+    #pyscript.write('status', f"geometry: {response_data['geometry']}")
+
+    return response_dict
+
+def setup():
+    click_proxy = create_proxy(button_click)
+
+    e = document.getElementById("button")
+    e.addEventListener("click", click_proxy)
+
+setup()
+
+    </py-script>
+
+    <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
+    <script>
+            function show_dict() { 
+            console.log(`Please work: ${response_dict}`);
+        }        
+    </script>
+</body>
+</html>
