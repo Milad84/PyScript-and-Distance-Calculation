@@ -18,16 +18,16 @@
     <div class="container">
 
     <p><h3>Enter the Latitude of the first point</h3>
-        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="First Lat" /></p>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="8.681495" /></p>
 
         <p><h3>Enter the Longitude of the first point</h3>
-        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="First long" /></p>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="49.41461" /></p>
 
         <p><h3>Enter the Latitude of the second point</h3>
-        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Second lat" /></p>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="8.687872" /></p>
 
         <p><h3>Enter the Longitude of the second point</h3>
-        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="Second long" /></p>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="49.420318" /></p>
 		
 	<br/>
 
@@ -76,7 +76,7 @@ async def button_click(event):
     response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLat},{FirstLong}&end={SecLat},{SecLong}", method="GET", headers=headers)
     response_dict = await response.json()
 
-    pyscript.write('status', f"GET request=> status:{response.status}, json:{response_dict['type']}")
+    pyscript.write('status', f"GET request=> status:{response.status}, json:{response_dict['features'][0]['geometry']['coordinates']}")
     #pyscript.write('status', f"geometry: {response_data['geometry']}")
 
     return response_dict
