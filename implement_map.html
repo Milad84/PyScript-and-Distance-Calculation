@@ -5,38 +5,69 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>API Fetch Test</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" 
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <style>
+        body {
+            background-color: #fcfcfc;
+            padding-top: 55px;
+            min-height: 100vh;
+            margin:0;
+            display:flex;
+            flex-direction:column;
+        }
+
+        #container{visibility:hidden;}
+
+        #map { height: 280px; margin: 0 0 10 0;}
+    </style>
+
 
     <py-env>
     </py-env>
-
+    
 </head>
 <body>
     <h1>API Call Test</h1> <br />
 
     <div class="container">
 
+        <div id="map"></div>
+
     <p><h3>Enter the Latitude of the first point</h3>
-        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="8.681495" /></p>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.681495" /></p>
 
         <p><h3>Enter the Longitude of the first point</h3>
-        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="49.41461" /></p>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.41461" /></p>
 
         <p><h3>Enter the Latitude of the second point</h3>
-        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="8.687872" /></p>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.687872" /></p>
 
         <p><h3>Enter the Longitude of the second point</h3>
-        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder="49.420318" /></p>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.420318" /></p>
 		
 	<br/>
 
     <center>
 		<button  class="btn btn-info" type="button" id="button">Route my points!</button>
 	</center>
-
-
     </div>
+
+
+    <script>
+        let map = L.map('map').setView([51.505, -0.09], 13);
+        
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+    </script>
+
 
     <script>
         function createObject(object, variableName){
@@ -49,7 +80,6 @@
     </script>
 
     <div id="status"></div>
-
 
 <p></p>  
 
@@ -102,6 +132,7 @@ createObject(create_proxy(coords), 'coordinates_js')
             console.log(`Please work: ${coordinates_js}`);
         }        
     </script>
+
 
 </body>
 </html>
