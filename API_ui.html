@@ -43,7 +43,7 @@
             //Bind a variable whose name is the string variableName
             // to the object called 'object'
             let execString = variableName + " = object"
-            console.log("Running '" + execString + "'");
+            console.log("Running `" + execString + "`");
             eval(execString)
         }
     </script>
@@ -61,6 +61,8 @@ import asyncio
 from js import createObject
 import json
 
+coords = []
+
 async def button_click(event):
     FirstLat = document.getElementById("FirstLat").value
     FirstLong = document.getElementById('FirstLong').value
@@ -75,11 +77,10 @@ async def button_click(event):
 
     response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLat},{FirstLong}&end={SecLat},{SecLong}", method="GET", headers=headers)
     response_dict = await response.json()
+    coordinates = response_dict['features'][0]['geometry']['coordinates']
+    coords.append(coordinates)
 
-    pyscript.write('status', f"GET request=> status:{response.status}, json:{response_dict['features'][0]['geometry']['coordinates']}")
-    #pyscript.write('status', f"geometry: {response_data['geometry']}")
-
-    return response_dict
+    pyscript.write('status', f"GET request=> status:{response.status}, json:{coordinates}")
 
 def setup():
     click_proxy = create_proxy(button_click)
@@ -89,12 +90,14 @@ def setup():
 
 setup()
 
+createObject(create_proxy(coords), 'coordinates_js')
+    
     </py-script>
 
     <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
     <script>
             function show_dict() { 
-            console.log(`Please work: ${response_dict}`);
+            console.log(`Please work: ${coordinates_js}`);
         }        
     </script>
 </body>
