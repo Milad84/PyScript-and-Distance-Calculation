@@ -50,7 +50,7 @@
 
         <p><h3>Enter the Longitude of the second point</h3>
         <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.420318" /></p>
-		
+	
 	<br/>
 
     <center>
@@ -66,8 +66,62 @@
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
-    </script>
 
+        let lat1, lng1, lat2, lng2;
+        let origin = 0;
+        let latlngs = Array();
+
+        let route_polyline = L.featureGroup().addTo(map);
+
+        function drawToMap(ev, what) { 
+
+            let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
+        
+        }
+
+        function clearMap() { 
+            latlngs = Array()
+            route_polyline.clearLayers();
+        }
+
+        map.addEventListener('click', function(ev) { 
+            if (origin == 0) { 
+                clearMap()
+
+                document.getElementById('status').textContent= 'Select Destination on The Map'
+                document.getElementById('FirstLat').textContent = ev.latlng.lat
+                document.getElementById('FirstLong').textContnet = ev.latlng.lat
+
+
+                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+
+                drawToMap(ev, "Starting Position");
+
+                origin = 1;
+                }
+
+            else {
+                document.getElementById('status').textContent= 'Select Origin on The Map'
+                document.getElementById('FirstLat').textContent = ev.latlng.lat
+                document.getElementById('FirstLong').textContnet = ev.latlng.lat
+
+                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+
+
+                let manual_event = document.getElementById('button');
+                manual_event.click();
+
+
+                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+                let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
+                
+                let directions = L.polyline(route_js, {color:'red'}).addTo(route_polyline);
+
+                origin = 0
+                }
+        });
+
+    </script>
 
     <script>
         function createObject(object, variableName){
@@ -91,7 +145,7 @@ import asyncio
 from js import createObject
 import json
 
-coords = []
+route = []
 
 async def button_click(event):
     FirstLat = document.getElementById("FirstLat").value
@@ -110,26 +164,25 @@ async def button_click(event):
     
     # create coordinates object, append it to the coords list for export to javascript
     coordinates = response_dict['features'][0]['geometry']['coordinates']
-    coords.append(coordinates)
+    route.append(coordinates)
 
-    pyscript.write('status', f"GET request=> status:{response.status}, json:{coordinates}")
+    pyscript.write('status', f"Status:{response.status}, returned:{route}")
 
 def setup():
     click_proxy = create_proxy(button_click)
 
     e = document.getElementById("button")
     e.addEventListener("click", click_proxy)
-
+    
 setup()
-
-createObject(create_proxy(coords), 'coordinates_js')
+createObject(create_proxy(route), 'route_js')
     
     </py-script>
 
     <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
     <script>
             function show_dict() { 
-            console.log(`Please work: ${coordinates_js}`);
+            console.log(route_js);
         }        
     </script>
 
