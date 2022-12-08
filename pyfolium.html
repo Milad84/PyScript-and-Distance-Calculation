@@ -1,0 +1,143 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API Fetch Test</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" 
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <style>
+        body {
+            background-color: #fcfcfc;
+            padding-top: 55px;
+            min-height: 100vh;
+            margin:0;
+            display:flex;
+            flex-direction:column;
+        }
+
+        #container{visibility:hidden;}
+
+    </style>
+
+
+    <py-env>
+        - folium
+    </py-env>
+    
+</head>
+<body>
+    <h1>API Call Test</h1> <br />
+
+    <div class="container">
+
+        <div id="map"></div>
+
+
+    <p><h3>Enter the Latitude of the first point</h3>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.681495" /></p>
+
+        <p><h3>Enter the Longitude of the first point</h3>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.41461" /></p>
+
+        <p><h3>Enter the Latitude of the second point</h3>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.687872" /></p>
+
+        <p><h3>Enter the Longitude of the second point</h3>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.420318" /></p>
+		
+	<br/>
+
+    <center>
+		<button  class="btn btn-info" type="button" id="button">Route my points!</button>
+	</center>
+    </div>
+
+    <script>
+        function createObject(object, variableName){
+            //Bind a variable whose name is the string variableName
+            // to the object called 'object'
+            let execString = variableName + " = object"
+            console.log("Running `" + execString + "`");
+            eval(execString)
+        }
+    </script>
+
+    <div id="status"></div>
+
+<p></p>  
+
+    <py-script> 
+from pyodide.http import pyfetch
+from js import document, alert
+from pyodide import create_proxy
+import asyncio
+from js import createObject
+import json
+
+coords = []
+
+async def button_click(event):
+    FirstLat = document.getElementById("FirstLat").value
+    FirstLong = document.getElementById('FirstLong').value
+    SecLat = document.getElementById('SecLat').value
+    SecLong = document.getElementById('SecLong').value
+
+    ##test data: 8.681495,49.41461       8.687872,49.420318
+
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+    }
+
+    response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLat},{FirstLong}&end={SecLat},{SecLong}", method="GET", headers=headers)
+    response_dict = await response.json()
+    
+    # create coordinates object, append it to the coords list for export to javascript
+    coordinates = response_dict['features'][0]['geometry']['coordinates']
+    coords.append(coordinates)
+
+    pyscript.write('status', f"GET request=> status:{response.status}, json:{coordinates}")
+
+def setup():
+    click_proxy = create_proxy(button_click)
+
+    e = document.getElementById("button")
+    e.addEventListener("click", click_proxy)
+
+setup()
+
+createObject(create_proxy(coords), 'coordinates_js')
+    </py-script>
+
+    <py-script output="map">
+
+import folium
+from pyodide import create_proxy
+from folium.plugins import MousePosition
+
+m = folium.Map(height = 280, location = [-6.2238, 106.8193], zoom_start = 10)
+m.add_child(folium.LatLngPopup())
+MousePosition().add_to(m)
+m
+
+
+
+
+    </py-script>
+
+    <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
+    <script>
+            function show_dict() { 
+            console.log(`Please work: ${coordinates_js}`);
+        }        
+    </script>
+
+
+</body>
+</html>

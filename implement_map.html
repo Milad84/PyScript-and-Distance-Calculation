@@ -12,6 +12,7 @@
     
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             background-color: #fcfcfc;
@@ -40,16 +41,16 @@
         <div id="map"></div>
 
     <p><h3>Enter the Latitude of the first point</h3>
-        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.681495" /></p>
+        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
 
         <p><h3>Enter the Longitude of the first point</h3>
-        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.41461" /></p>
+        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
 
         <p><h3>Enter the Latitude of the second point</h3>
-        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="8.687872" /></p>
+        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
 
         <p><h3>Enter the Longitude of the second point</h3>
-        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm" value="49.420318" /></p>
+        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
 	
 	<br/>
 
@@ -60,18 +61,20 @@
 
 
     <script>
-        let map = L.map('map').setView([51.505, -0.09], 13);
+
+        let lat1, lng1, lat2, lng2;
+        let origin = 0;
+        let latlngs = Array();
         
+        let map = L.map('map').setView([42.282280316412546, -71.80865838018761], 13);
+
+        let route_polyline = L.featureGroup().addTo(map);
+
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        let lat1, lng1, lat2, lng2;
-        let origin = 0;
-        let latlngs = Array();
-
-        let route_polyline = L.featureGroup().addTo(map);
 
         function drawToMap(ev, what) { 
 
@@ -88,9 +91,9 @@
             if (origin == 0) { 
                 clearMap()
 
-                document.getElementById('status').textContent= 'Select Destination on The Map'
-                document.getElementById('FirstLat').textContent = ev.latlng.lat
-                document.getElementById('FirstLong').textContnet = ev.latlng.lat
+                document.getElementById('status').textContent= "Select Destination on The Map"
+                document.getElementById('FirstLat').value = ev.latlng.lat
+                document.getElementById('FirstLong').value = ev.latlng.lng
 
 
                 latlngs.push([ev.latlng.lat,ev.latlng.lng]);
@@ -101,26 +104,28 @@
                 }
 
             else {
-                document.getElementById('status').textContent= 'Select Origin on The Map'
-                document.getElementById('FirstLat').textContent = ev.latlng.lat
-                document.getElementById('FirstLong').textContnet = ev.latlng.lat
+                document.getElementById('status').textContent= "Select Origin on The Map"
+                document.getElementById('SecLat').value = ev.latlng.lat
+                document.getElementById('SecLong').value = ev.latlng.lng
 
                 latlngs.push([ev.latlng.lat,ev.latlng.lng]);
-
 
                 let manual_event = document.getElementById('button');
                 manual_event.click();
 
+                // WORK HERE
+                let route = pyodideGlobals.get('route');
+
+                drawToMap(ev, "Destination Point");
 
                 latlngs.push([ev.latlng.lat,ev.latlng.lng]);
                 let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
                 
-                let directions = L.polyline(route_js, {color:'red'}).addTo(route_polyline);
+                let mypolyline = L.polyline(route, {color:'red'}).addTo(route_polyline);
 
                 origin = 0
                 }
         });
-
     </script>
 
     <script>
@@ -134,10 +139,11 @@
     </script>
 
     <div id="status"></div>
+    <div id="storage"></div>
 
 <p></p>  
 
-    <py-script> 
+    <py-script output = 'storage'> 
 from pyodide.http import pyfetch
 from js import document, alert
 from pyodide import create_proxy
@@ -159,14 +165,19 @@ async def button_click(event):
         'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
     }
 
-    response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLat},{FirstLong}&end={SecLat},{SecLong}", method="GET", headers=headers)
+    response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLong},{FirstLat}&end={SecLong},{SecLat}", method="GET", headers=headers)
     response_dict = await response.json()
     
     # create coordinates object, append it to the coords list for export to javascript
     coordinates = response_dict['features'][0]['geometry']['coordinates']
-    route.append(coordinates)
+    route.extend(coordinates)
 
-    pyscript.write('status', f"Status:{response.status}, returned:{route}")
+    for i in route:
+        i[0], i[1] = i[1], i[0]
+
+    pyscript.write('storage', route)
+
+    return coordinates
 
 def setup():
     click_proxy = create_proxy(button_click)
@@ -175,14 +186,15 @@ def setup():
     e.addEventListener("click", click_proxy)
     
 setup()
-createObject(create_proxy(route), 'route_js')
-    
+createObject(create_proxy(globals()), "pyodideGlobals")
+createObject(create_proxy(route), "route_js")
+
     </py-script>
 
     <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
     <script>
             function show_dict() { 
-            console.log(route_js);
+            console.log(pyodideGlobals.get('route'));
         }        
     </script>
 
