@@ -141,20 +141,18 @@ route = []
 
 def haversine(lon1, lat1, lon2, lat2):
     """
-    Calculate the great circle distance in km between two points in decimal degrees
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees)
     """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
-    # convert to radians
-    lon1, lat1, lon2, lat2 = map(radians [lon1, lat1, lon2, lat2])
-
-    # formula
-
-    dlon = lon2 - lon1
-    dlat = lat2- lat1
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    r = 6371 # radius of earth in km
-
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
     return c * r
 
 async def button_click(event):
@@ -179,17 +177,26 @@ async def button_click(event):
     route.append([float(SecLong), float(SecLat)])
 
     #lon1, lat1, lon2, lat2
-    routediffs = []
+    route_diffs = []
 
     for i in route:
         i[0], i[1] = i[1], i[0]
 
-    #for x, y in pairwise(route):
-    #    difference = haversine(route[x][2], route[x][1], route[y][1], route[x][2])
-    #    routeddiffs.extend(difference)
-         
+    for i in range(len(route)): # need to use range len idiom (bad practice) to grab next index value without using itertools
+        try:
+            lat1 = route[i][0]
+            lon1 = route[i][1]
+            lat2 = route[i + 1][0]
+            lon2 = route[i + 1][1]
+            difference = haversine(lon1 = lon1, lat1 = lat1, lon2 = lon2, lat2= lat2)
+            route_diffs.append(difference)
+        except IndexError:
+            break
+    
+    finaldist = sum(route_diffs)
+
     pyscript.write('storage', route)
-    #pyscript.write('diff', routeddiffs)
+    pyscript.write('diff', f'Distance from A to B: {finaldist} km')
 
 def setup():
     click_proxy = create_proxy(button_click)
