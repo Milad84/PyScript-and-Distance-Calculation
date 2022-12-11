@@ -26,13 +26,19 @@ route = [[42.27743578594554, -71.82775497436525], [42.277435, -71.827743],
 routeddiffs = []
 
 for i in range(len(route)): # need to use range len idiom (bad practice) to grab next index value without using itertools
-    lat1 = route[i][0]
-    lon1 = route[i][1]
-    lat2 = route[i + 1][0]
-    lon2 = route[i + 1][1]
+    try:
+        lat1 = route[i][0]
+        lon1 = route[i][1]
+        lat2 = route[i + 1][0]
+        lon2 = route[i + 1][1]
+        difference = haversine(lon1 = lon1, lat1 = lat1, lon2 = lon2, lat2= lat2)
+        routeddiffs.append(difference)
+    except IndexError:
+        break
 
-    difference = haversine(lon1 = lon1, lat1 = lat1, lon2 = lon2, lat2= lat2)
-    routeddiffs.extend(difference)
+sum(routeddiffs)
+
+
 
 for x, y in route:
     difference = haversine(x[1], x[0], y[1], y[0])

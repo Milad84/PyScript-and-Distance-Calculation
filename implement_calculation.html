@@ -28,10 +28,6 @@
         #map { height: 280px; margin: 0 0 10 0;}
     </style>
 
-
-    <py-env>
-    </py-env>
-    
 </head>
 <body>
     <h1>API Call Test</h1> <br />
@@ -40,22 +36,20 @@
 
         <div id="map"></div>
 
-    <p><h3>Enter the Latitude of the first point</h3>
-        <input id="FirstLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
-
-        <p><h3>Enter the Longitude of the first point</h3>
-        <input id="FirstLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
-
-        <p><h3>Enter the Latitude of the second point</h3>
-        <input id="SecLat" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
-
-        <p><h3>Enter the Longitude of the second point</h3>
-        <input id="SecLong" type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="FirstLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="FirstLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="SecLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="SecLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
 	
 	<br/>
 
+    <div id="status"></div>
+
+    <div id="diff"></div>
+        <h1 class="text-center alert alert-info" id="distance">Click the map to begin!</h1>
+
     <center>
-		<button  class="btn btn-info" type="button" id="button">Route my points!</button>
+		<button  class="btn btn-info" type="button" id="button"></button>
 	</center>
     </div>
 
@@ -123,10 +117,8 @@
         });
     </script>
 
-    <div id="status"></div>
     <div id="storage"></div>
-    <div id="diff"></div>
-
+    
 <p></p>  
 
     <py-script output = 'storage'> 
@@ -135,9 +127,7 @@ from js import document, alert
 from pyodide import create_proxy
 import asyncio
 from math import radians, cos, sin, asin, sqrt
-from itertools import pairwise
 
-route = []
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -160,6 +150,8 @@ async def button_click(event):
     FirstLong = document.getElementById('FirstLong').value
     SecLat = document.getElementById('SecLat').value
     SecLong = document.getElementById('SecLong').value
+
+    route = []
 
     ##test data: 8.681495,49.41461       8.687872,49.420318
 
@@ -195,8 +187,9 @@ async def button_click(event):
     
     finaldist = sum(route_diffs)
 
-    pyscript.write('storage', route)
-    pyscript.write('diff', f'Distance from A to B: {finaldist} km')
+    # Uncomment this if you would like to see the full route lat long array
+    #pyscript.write('storage', route)
+    pyscript.write('distance', f'<b>Distance from A to B:</b> {finaldist:.2f} km')
 
 def setup():
     click_proxy = create_proxy(button_click)
@@ -207,14 +200,6 @@ def setup():
 setup()
 
     </py-script>
-
-    <button onclick="show_dict()">Click Me to Get the dictionary from Python</button>
-    <script>
-            function show_dict() { 
-            console.log(pyodideGlobals.get('route'));
-        }        
-    </script>
-
 
 </body>
 </html>
