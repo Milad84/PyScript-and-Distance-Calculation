@@ -4,6 +4,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
     <title>Georouted Distance Calculator</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
@@ -14,6 +15,7 @@
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     
     <style>
+
         body {
             background-color: #fcfcfc;
             padding-top: 55px;
@@ -27,9 +29,11 @@
             text-align:center;
             font-size: 40px
         }
-        #container{ visibility: hidden; }
+
+        #container { visibility: hidden; }
 
         #map { height: 450px; margin: 0 0 10 0; }
+
     </style>
 
 </head>
@@ -118,7 +122,7 @@
 
                 drawToMap(ev, "Destination Point");
 
-                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+                latlngs.push([ev.latlng.lat, ev.latlng.lng]);
                 let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
                 
                 origin = 0
