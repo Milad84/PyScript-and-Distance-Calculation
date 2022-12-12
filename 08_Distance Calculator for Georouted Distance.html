@@ -1,0 +1,219 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Georouted Distance Calculator</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" 
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    
+    <style>
+
+        body {
+            background-color: #fcfcfc;
+            padding-top: 55px;
+            min-height: 100vh;
+            margin:0;
+            display:flex;
+            flex-direction:column;
+        }
+
+        h1 { 
+            text-align:center;
+            font-size: 40px
+        }
+
+        #container { visibility: hidden; }
+
+        #map { height: 450px; margin: 0 0 10 0; }
+
+    </style>
+
+</head>
+<body>
+    <h1><b>Georouted Distance Calculator</b></h1> <br />
+
+    <div class="container">
+
+        <div id="map"></div>
+
+        <!-- Hidden forms to read PyScript content into -->
+        <input id="FirstLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="FirstLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="SecLat" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+        <input id="SecLong" type="hidden" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm"/></p>
+	
+	<br/>
+
+    <div id="status"></div>
+
+    <div id="diff"></div>
+        <h1 class="text-center alert alert-info" id="distance">Click the map to begin!</h1>
+
+    <center>
+		<button  class="btn btn-info" type="button" id="button"></button>
+	</center>
+    </div>
+
+
+    <script>
+
+        let lat1, lng1, lat2, lng2;
+        let origin = 0;
+        let latlngs = Array();
+        
+        let map = L.map('map').setView([42.282280316412546, -71.80865838018761], 13);
+
+        let route_polyline = L.featureGroup().addTo(map);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // function to draw marker on map
+        function drawToMap(ev, what) { 
+
+            let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
+        
+        }
+
+        function clearMap() { 
+            latlngs = Array()
+            route_polyline.clearLayers();
+        }
+
+        map.addEventListener('click', function(ev) { 
+            if (origin == 0) { 
+                clearMap()
+
+                // if there is already a marker on the map, do this
+                document.getElementById('status').textContent= "Select Destination on The Map"
+                document.getElementById('FirstLat').value = ev.latlng.lat
+                document.getElementById('FirstLong').value = ev.latlng.lng
+
+
+                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+
+                drawToMap(ev, "Starting Position");
+
+                origin = 1;
+                }
+
+            else {
+
+                // if there is no marker, push these elements
+                document.getElementById('status').textContent= "Select Origin on The Map"
+                document.getElementById('SecLat').value = ev.latlng.lat
+                document.getElementById('SecLong').value = ev.latlng.lng
+
+                latlngs.push([ev.latlng.lat,ev.latlng.lng]);
+
+                // manually force button click event to activate PyScript on-click listener
+                let manual_event = document.getElementById('button');
+                manual_event.click();
+
+                drawToMap(ev, "Destination Point");
+
+                latlngs.push([ev.latlng.lat, ev.latlng.lng]);
+                let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
+                
+                origin = 0
+                }
+        });
+    </script>
+
+    <div id="storage"></div>
+    
+    <py-script output = 'storage'>
+
+from pyodide.http import pyfetch
+from js import document, alert
+from pyodide import create_proxy
+import asyncio
+from math import radians, cos, sin, asin, sqrt
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers 
+    return c * r
+
+async def button_click(event):
+    FirstLat = document.getElementById("FirstLat").value
+    FirstLong = document.getElementById('FirstLong').value
+    SecLat = document.getElementById('SecLat').value
+    SecLong = document.getElementById('SecLong').value
+
+    route = []
+
+    headers = {
+        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+    }
+
+    response = await pyfetch(url=f"https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62487621a9df4b6a49cdbc6f26847723515b&start={FirstLong},{FirstLat}&end={SecLong},{SecLat}", method="GET", headers=headers)
+    response_dict = await response.json()
+    
+    # create coordinates object, append it to the coords list for export to javascript
+    coordinates = response_dict['features'][0]['geometry']['coordinates']
+    route.extend(coordinates)
+    route.insert(0, [float(FirstLong), float(FirstLat)])
+    route.append([float(SecLong), float(SecLat)])
+
+    #lon1, lat1, lon2, lat2
+    route_diffs = []
+
+    for i in route: # switch from LongLat to LatLong
+        i[0], i[1] = i[1], i[0]
+
+    for i in range(len(route)): # need to use range len idiom (bad practice) to grab next index value without using itertools
+        try: # pairwise calculation of lat longs in georoute
+            lat1 = route[i][0]
+            lon1 = route[i][1]
+            lat2 = route[i + 1][0]
+            lon2 = route[i + 1][1]
+            difference = haversine(lon1 = lon1, lat1 = lat1, lon2 = lon2, lat2= lat2)
+            route_diffs.append(difference)
+        except IndexError: 
+            break
+    
+    finaldist = sum(route_diffs)
+
+    # Uncomment this if you would like to see the full route lat long array printed
+    #pyscript.write('storage', route)
+
+    pyscript.write('distance', f'<b>Distance from A to B:</b> {finaldist:.2f} km')
+
+def setup():
+    """
+    Initializes site content and HTML listeners that are typically handled by JavaScript
+    """
+    click_proxy = create_proxy(button_click)
+
+    e = document.getElementById("button")
+    e.addEventListener("click", click_proxy)
+    
+setup()
+
+    </py-script>
+
+</body>
+</html>
