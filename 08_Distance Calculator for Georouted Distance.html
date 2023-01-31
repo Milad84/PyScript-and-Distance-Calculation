@@ -71,7 +71,7 @@
         
         let map = L.map('map').setView([42.282280316412546, -71.80865838018761], 13);
 
-        let route_polyline = L.featureGroup().addTo(map);
+        let routePoint = L.featureGroup().addTo(map);
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -81,13 +81,13 @@
         // function to draw marker on map
         function drawToMap(ev, what) { 
 
-            let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(route_polyline);
+            let marker = L.marker([ev.latlng.lat, ev.latlng.lng]).addTo(routePoint);
         
         }
 
         function clearMap() { 
             latlngs = Array()
-            route_polyline.clearLayers();
+            routePoint.clearLayers();
         }
 
         map.addEventListener('click', function(ev) { 
